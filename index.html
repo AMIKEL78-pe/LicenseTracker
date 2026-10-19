@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LicenseTracker · COSEINCO</title>
+<style>
+:root{--azul:#003366;--azul2:#004080;--nar:#FF6600;--nar2:#E65100;--bg:#F1F5F9;--card:#fff;--tx:#0f172a;--mut:#64748b;--bd:#e2e8f0;
+--rojo:#dc2626;--rojoBg:#fee2e2;--ama:#b45309;--amaBg:#fef3c7;--ver:#15803d;--verBg:#dcfce7;--gris:#475569;--grisBg:#e2e8f0;
+--sh:0 4px 6px -1px rgba(0,0,0,.1);font-family:Inter,"Segoe UI",Roboto,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-size:14px}
+header{background:linear-gradient(90deg,var(--azul),var(--azul2));color:#fff;padding:14px 24px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}.logo b{font-size:22px;letter-spacing:1px}.logo b span{color:var(--nar)}
+.logo small{display:block;opacity:.8;font-size:12px}
+.badge-up{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:20px;font-size:12px}
+main{max-width:1400px;margin:auto;padding:20px 16px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+button,.btn{border:0;border-radius:8px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer;background:#fff;color:var(--azul);box-shadow:var(--sh)}
+.pri{background:var(--nar);color:#fff}.pri:hover{background:var(--nar2)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--sh);border-left:5px solid var(--azul);cursor:pointer}
+.kpi h4{margin:0;font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase}.kpi p{margin:6px 0 0;font-size:24px;font-weight:700}
+.kpi.r{border-color:var(--rojo)}.kpi.a{border-color:#f59e0b}.kpi.v{border-color:var(--ver)}.kpi.n{border-color:var(--nar)}
+.panel{background:var(--card);border-radius:12px;box-shadow:var(--sh);padding:14px;margin-bottom:16px}
+.filters{display:grid;grid-template-columns:2fr repeat(5,1fr);gap:8px}
+@media(max-width:900px){.filters{grid-template-columns:1fr 1fr}}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;font:inherit;background:#fff}
+label{font-size:11px;color:var(--mut);font-weight:600;display:block;margin-bottom:3px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:1050px}
+th{background:var(--azul);color:#fff;text-align:left;padding:10px;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
+th:first-child{border-radius:8px 0 0 0}th:last-child{border-radius:0 8px 0 0}
+td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:top}tr:hover td{background:#f8fafc}
+.st{display:inline-block;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.st.r{background:var(--rojoBg);color:var(--rojo)}.st.a{background:var(--amaBg);color:var(--ama)}.st.v{background:var(--verBg);color:var(--ver)}.st.g{background:var(--grisBg);color:var(--gris)}
+.num{text-align:right;white-space:nowrap}.mut{color:var(--mut);font-size:12px}
+.pag{display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:8px}
+.pag button{padding:6px 10px}
+.tag{font-size:10px;background:#e0e7ff;color:#3730a3;padding:1px 6px;border-radius:6px;margin-right:3px}
+.ic{padding:4px 8px;font-size:12px;box-shadow:none;border:1px solid var(--bd)}
+#log{font-size:12px;color:var(--mut);max-height:120px;overflow:auto;white-space:pre-wrap}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--azul);color:#fff;padding:12px 16px;border-radius:8px;box-shadow:var(--sh);display:none;z-index:9}
+.excl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.excl b{font-size:12px;color:var(--azul);margin-right:4px}
+.chip{border:1px solid var(--bd);background:#fff;color:var(--tx);border-radius:16px;padding:4px 10px;font-size:12px;font-weight:600;box-shadow:none;cursor:pointer}
+.chip.off{background:#fee2e2;border-color:#fca5a5;color:var(--rojo);text-decoration:line-through}
+.chip .x{margin-left:6px;opacity:.6}
+#exclNew{width:150px;padding:4px 8px;font-size:12px}
+.acc{display:flex;gap:4px;flex-wrap:wrap}.ic.np{color:var(--rojo)}
+tr.np td{opacity:.55}
+.srcrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.srcrow+.srcrow{margin-top:10px}.srcrow>b{font-size:12px;color:var(--azul)}
+.fold{display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--azul);border-radius:16px;padding:4px 10px;font-size:12px;font-weight:600;margin:2px}
+.fold button{box-shadow:none;background:none;padding:0 2px;color:var(--rojo);font-size:12px}
+.doc{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;background:#ffedd5;color:var(--nar2);margin-right:4px}
+.drop{border:2px dashed var(--bd);border-radius:12px;padding:14px;text-align:center;color:var(--mut)}
+.drop.on{border-color:var(--nar);background:#fff7ed}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><b>COSE<span>INCO</span></b><div>LicenseTracker<small>Control de vencimiento de licencias de software</small></div></div>
+  <div class="badge-up">Última actualización local: <b id="upd">—</b></div>
+</header>
+<main>
+  <div class="bar">
+    <button class="pri" id="bDir">➕ Agregar carpeta</button>
+    <button id="bFiles">📄 Cargar archivos</button>
+    <button id="bCsv">⬇ Exportar Excel (CSV)</button>
+    <button id="bMock">🧪 Datos de prueba</button>
+    <button id="bRe" title="Vuelve a leer todos los archivos aunque ya se hayan importado">🔄 Reprocesar carpeta</button>
+    <button id="bClear">🗑 Limpiar datos</button>
+    <input type="file" id="fFiles" multiple accept=".xml,.zip,.pdf,.json" hidden>
+    <input type="file" id="fDir" webkitdirectory multiple hidden>
+  </div>
+
+  <div class="panel src">
+    <div class="srcrow"><b>Carpetas cargadas:</b><span id="carpetas"></span></div>
+    <div class="srcrow"><b>Palabra clave en el nombre del archivo:</b><input id="kw" style="max-width:260px" title="Separe varias con coma. Igual que la búsqueda del Explorador de Windows."><span class="mut">Solo se importan los archivos cuyo nombre la contenga (como al buscar en el Explorador).</span></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi" data-k=""><h4>Total licencias</h4><p id="kT">0</p></div>
+    <div class="kpi r" data-k="vencida"><h4>Vencidas</h4><p id="kV">0</p></div>
+    <div class="kpi r" data-k="rojo"><h4>Críticas (≤15 días)</h4><p id="kR">0</p></div>
+    <div class="kpi a" data-k="mes"><h4>Vencen este mes</h4><p id="kM">0</p></div>
+    <div class="kpi n" data-k=""><h4>Renovación proyectada (90 días)</h4><p id="kP" style="font-size:17px">—</p></div>
+  </div>
+
+  <div class="panel">
+    <div class="filters">
+      <div><label>Búsqueda global</label><input id="q" placeholder="Cliente, RUC, factura, descripción…"></div>
+      <div><label>Cliente</label><select id="fCli"><option value="">Todos</option></select></div>
+      <div><label>Tipo</label><select id="fTipo"><option value="">Todos</option><option>Microsoft 365</option><option>Antivirus</option><option>Licencia</option><option>Suscripción</option><option>Software</option></select></div>
+      <div><label>Estado</label><select id="fEst"><option value="">Todos</option><option value="vencida">Vencida</option><option value="rojo">Crítico</option><option value="amarillo">Advertencia</option><option value="verde">Vigente</option><option value="renovada">Renovada</option><option value="noprocede">No procede</option></select></div>
+      <div><label>Vence desde</label><input type="date" id="fD1"></div>
+      <div><label>Vence hasta</label><input type="date" id="fD2"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="excl" id="excl"></div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th data-s="prioridad" title="Por vencer primero">Estado</th><th data-s="factura">Documento</th><th data-s="cliente">Cliente / RUC</th>
+        <th data-s="descripcion">Descripción</th><th data-s="emision">Emisión</th><th data-s="vence">Vencimiento</th>
+        <th data-s="dias">Días</th><th data-s="monto" class="num">Importe</th><th>Acción</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <div class="pag"><span class="mut" id="pInfo"></span>
+      <div><select id="pSize" style="width:auto"><option>10</option><option selected>25</option><option>50</option><option>100</option></select>
+      <button id="pPrev">‹</button> <span id="pNum"></span> <button id="pNext">›</button></div></div>
+  </div>
+
+  <div class="panel"><div class="drop" id="drop">Arrastra aquí una <b>carpeta</b> o archivos: XML (UBL SUNAT), ZIP de SUNAT, PDF o JSON</div>
+    <div id="prog" style="display:none;margin-top:10px"><div style="background:var(--bd);border-radius:6px;height:10px;overflow:hidden"><div id="progBar" style="height:100%;width:0;background:var(--nar);transition:width .15s"></div></div><div class="mut" id="progTx" style="margin-top:4px"></div></div>
+    <div id="log" style="margin-top:8px"></div></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const KEYWORDS=['licencia','365','antivirus','microsoft','suscripcion','anual','software','office','windows','kaspersky','eset','bitdefender','adobe','autocad'];
+const LS='lt_coseinco_v2';
+let DB={rows:[],upd:null}, sortK='prioridad', sortDir=1, page=1;
+const $=id=>document.getElementById(id);
+const norm=s=>(s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const esc=s=>(s??'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- Fechas ---------- */
+const parseISO=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');return m?new Date(+m[1],m[2]-1,+m[3]):null};
+function parseFecha(s){if(!s)return null;s=s.trim();let d=parseISO(s);if(d)return d;
+  const m=/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/.exec(s);return m?new Date(+m[3],m[2]-1,+m[1]):null}
+const toISO=d=>d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';
+const fmt=iso=>{const d=parseISO(iso);return d?d.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit',year:'numeric'}):'—'};
+function addMeses(d,n){const t=d.getMonth()+n,y=d.getFullYear()+Math.floor(t/12),m=((t%12)+12)%12,last=new Date(y,m+1,0).getDate();return new Date(y,m,Math.min(d.getDate(),last))}
+const add12m=d=>addMeses(d,12); // 29-feb → 28-feb
+const hoy=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const dias=iso=>Math.round((parseISO(iso)-hoy())/864e5);
+function estado(r){if(r.noProcede)return'noprocede';if(r.renovada)return'renovada';const d=dias(r.vence);return d<0?'vencida':d<=15?'rojo':d<=45?'amarillo':'verde'}
+const EST={vencida:['r','Vencida'],rojo:['r','Crítico'],amarillo:['a','Advertencia'],verde:['v','Vigente'],renovada:['g','Renovada'],noprocede:['g','No procede']};
+const money=(n,c)=>(c==='USD'?'US$ ':'S/ ')+Number(n||0).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+function tipo(desc){const t=norm(desc);if(/365|office/.test(t))return'Microsoft 365';if(/antivirus|kaspersky|eset|bitdefender|endpoint/.test(t))return'Antivirus';
+  if(/suscrip/.test(t))return'Suscripción';if(/licencia|windows|autocad|adobe/.test(t))return'Licencia';return'Software'}
+let KW=['licencia'];try{const k=JSON.parse(localStorage.getItem('lt_coseinco_v2_kw'));if(Array.isArray(k)&&k.length)KW=k}catch(e){}
+const esLicencia=txt=>{const t=norm(txt);return KW.some(k=>t.includes(k))};
+
+/* ---------- Persistencia ---------- */
+function save(){try{localStorage.setItem(LS,JSON.stringify(DB))}catch(e){toast('No se pudo guardar localmente')}}
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d&&d.rows)DB=d}catch(e){}}
+
+/* ---------- Registro ---------- */
+const docKey=n=>{const m=/([A-Z0-9]{4})-0*(\d+)/i.exec(n||'');return m?m[1].toUpperCase()+'-'+m[2]:''};
+function makeRow(o){const em=parseFecha(o.emision);if(!em)return null;const meses=Math.min(36,Math.max(1,+o.meses||12));
+  return{id:docKey(o.factura)?'DOC|'+docKey(o.factura)+(o.linea?'|'+norm(o.descripcion).slice(0,40):''):(o.ruta||o.origen||'')+'|'+norm(o.descripcion).slice(0,40),
+    factura:o.factura||'S/N',doc:o.doc||(/^B/i.test(o.factura||'')?'Boleta':'Factura'),cant:+o.cant||1,meses,carpeta:o.carpeta||'',fechaArchivo:!!o.fechaArchivo,cliente:(o.cliente||'—').trim(),ruc:o.ruc||'',
+    emision:toISO(em),vence:toISO(addMeses(em,meses)),descripcion:(o.descripcion||'').trim(),tipo:tipo(o.descripcion),
+    monto:+o.monto||0,moneda:/usd|dolar|\$/i.test(o.moneda||'')&&!/s\//i.test(o.moneda)?'USD':'PEN',origen:o.origen||'',renovada:false}}
+function upsert(rows){let n=0;const map=new Map(DB.rows.map(r=>[r.id,r]));
+  rows.forEach(r=>{if(!r)return;const prev=map.get(r.id);if(prev){r.renovada=prev.renovada;r.noProcede=prev.noProcede}else n++;map.set(r.id,r)});
+  DB.rows=[...map.values()];DB.upd=new Date().toISOString();save();return n}
+
+/* ---------- Parsers ---------- */
+function parseXML(txt,name){const doc=new DOMParser().parseFromString(txt,'application/xml');
+  if(doc.querySelector('parsererror'))throw Error('XML inválido');
+  const L=(el,tag)=>el?[...el.getElementsByTagName('*')].filter(e=>e.localName===tag):[];
+  const F=(el,tag)=>L(el,tag)[0];const root=doc.documentElement;
+  const direct=tag=>[...root.children].find(e=>e.localName===tag);
+  const factura=direct('ID')?.textContent.trim();const emision=direct('IssueDate')?.textContent;
+  const cust=F(root,'AccountingCustomerParty');
+  const cliente=F(cust,'RegistrationName')?.textContent||F(cust,'Name')?.textContent;
+  const ruc=F(F(cust,'PartyIdentification'),'ID')?.textContent||F(cust,'CustomerAssignedAccountID')?.textContent;
+  const lines=L(root,'InvoiceLine');const out=[];
+  lines.forEach(li=>{const desc=L(li,'Description').map(e=>e.textContent).join(' ')||F(li,'Name')?.textContent||'';
+    if(!esLicencia(desc))return;
+    const amtEl=F(li,'LineExtensionAmount');const base=+(amtEl?.textContent||0);const igv=+(F(F(li,'TaxTotal'),'TaxAmount')?.textContent||0);
+    out.push(makeRow({linea:lines.length>1,factura,cliente,ruc,emision,descripcion:desc,monto:base+igv,moneda:amtEl?.getAttribute('currencyID'),origen:name}))});
+  if(!lines.length){const desc=L(root,'Description').map(e=>e.textContent).join(' ');
+    if(esLicencia(desc)){const p=F(root,'PayableAmount');out.push(makeRow({factura,cliente,ruc,emision,descripcion:desc,monto:p?.textContent,moneda:p?.getAttribute('currencyID'),origen:name}))}}
+  return out}
+function parseJSON(txt,name){let d=JSON.parse(txt);d=Array.isArray(d)?d:(d.facturas||d.invoices||[d]);const out=[];
+  d.forEach(f=>{const g=(...k)=>k.map(x=>f[x]).find(v=>v!=null);
+    const items=f.items||f.detalle||[{descripcion:g('descripcion','description','producto'),monto:g('total','monto','importe')}];
+    items.forEach(it=>{const desc=it.descripcion||it.description||'';if(!esLicencia(desc))return;
+      out.push(makeRow({factura:g('factura','numero','serie_numero','id'),cliente:g('cliente','razon_social','customer'),ruc:g('ruc','ruc_cliente'),
+        emision:g('fecha_emision','emision','issue_date','fecha'),descripcion:desc,monto:it.total??it.monto??it.importe,moneda:g('moneda','currency'),origen:name}))})});
+  return out}
+/* ---------- Lectura binaria nativa (sin CDN) ---------- */
+async function inflate(u8,fmt){const st=new Blob([u8]).stream().pipeThrough(new DecompressionStream(fmt));return new Uint8Array(await new Response(st).arrayBuffer())}
+function decodeXML(u8){const head=new TextDecoder('latin1').decode(u8.subarray(0,200));const enc=(/encoding=["']([\w-]+)/i.exec(head)||[])[1]||'utf-8';
+  try{return new TextDecoder(enc).decode(u8)}catch(e){return new TextDecoder().decode(u8)}}
+async function unzip(u8){const dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);let e=u8.length-22;
+  while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw Error('ZIP dañado');
+  const n=dv.getUint16(e+10,true);let p=dv.getUint32(e+16,true);const out=[];
+  for(let i=0;i<n;i++){const meth=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),xl=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),lo=dv.getUint32(p+42,true);
+    const name=new TextDecoder().decode(u8.subarray(p+46,p+46+nl));p+=46+nl+xl+cl;if(name.endsWith('/'))continue;
+    const st=lo+30+dv.getUint16(lo+26,true)+dv.getUint16(lo+28,true),raw=u8.subarray(st,st+cs);
+    if(meth===0)out.push({name,data:raw});else if(meth===8)out.push({name,data:await inflate(raw,'deflate-raw')})}
+  return out}
+function pdfStr(s){return s.replace(/\\([nrtbf()\\]|[0-7]{1,3})/g,(m,c)=>/[0-7]/.test(c)?String.fromCharCode(parseInt(c,8)):({n:'\n',r:'',t:' ',b:'',f:''}[c]??c))}
+function pdfOps(c){let out='';const re=/\[((?:\\.|[^\]\\])*)\]\s*TJ|\((?:\\.|[^\\)])*\)|(T\*|Td|TD|ET|')\b/g;let m;
+  while((m=re.exec(c))){if(m[1]!=null)out+=(m[1].match(/\((?:\\.|[^\\)])*\)|-?\d+\.?\d*/g)||[]).map(x=>x[0]==='('?pdfStr(x.slice(1,-1)):(+x<-200?' ':'')).join('');
+    else if(m[0][0]==='(')out+=pdfStr(m[0].slice(1,-1));else out+=m[2]==='ET'?'\n':' '}
+  return out}
+async function pdfText(u8){const s=new TextDecoder('latin1').decode(u8);let txt='';const re=/stream\r?\n/g;let m;
+  while((m=re.exec(s))){const start=m.index+m[0].length,dict=s.slice(Math.max(s.lastIndexOf('<<',m.index),m.index-600),m.index);
+    const L=/\/Length\s+(\d+)(?!\s+\d+\s+R)/.exec(dict);let end=L?start+ +L[1]:s.indexOf('endstream',start);if(end<start)break;
+    re.lastIndex=end;if(/\/Subtype\s*\/Image|\/Length1|\/Type\s*\/XRef/.test(dict))continue;
+    let data=u8.subarray(start,end);if(/ASCII85Decode/.test(dict))data=a85(data);else if(/\/Filter/.test(dict)&&!/FlateDecode/.test(dict))continue;
+    if(/FlateDecode/.test(dict)){while(data.length&&(data[data.length-1]===10||data[data.length-1]===13))data=data.subarray(0,data.length-1);
+      try{data=await inflate(data,'deflate')}catch(e){try{data=await inflate(data.subarray(2),'deflate-raw')}catch(e2){continue}}}
+    else if(/\/Filter/.test(dict))continue;
+    const c=new TextDecoder('latin1').decode(data);if(/T[Jj]/.test(c))txt+=pdfOps(c)+'\n'}
+  return txt.replace(/[ \t]+/g,' ')}
+function a85(u8){const t=new TextDecoder('latin1').decode(u8).replace(/^<~/,'').replace(/~>[\s\S]*$/,'').replace(/\s/g,'');const out=[];let g=[];
+  for(const ch of t){if(ch==='z'&&!g.length){out.push(0,0,0,0);continue}g.push(ch.charCodeAt(0)-33);
+    if(g.length===5){let v=0;for(const d of g)v=v*85+d;out.push(v>>>24&255,v>>>16&255,v>>>8&255,v&255);g=[]}}
+  if(g.length){const n=g.length;while(g.length<5)g.push(84);let v=0;for(const d of g)v=v*85+d;out.push(...[v>>>24&255,v>>>16&255,v>>>8&255,v&255].slice(0,n-1))}
+  return new Uint8Array(out)}
+let pdfjs=null,pdfjsKO=false;
+async function pdfjsText(u8){if(!pdfjs){const src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    await new Promise((ok,ko)=>{const sc=document.createElement('script');sc.src=src;sc.onload=ok;sc.onerror=ko;document.head.appendChild(sc);setTimeout(ko,4000)});
+    pdfjsLib.GlobalWorkerOptions.workerSrc=src.replace('pdf.min.js','pdf.worker.min.js');pdfjs=pdfjsLib}
+  const pdf=await pdfjs.getDocument({data:u8}).promise;let t='';
+  for(let i=1;i<=pdf.numPages;i++)t+=(await(await pdf.getPage(i)).getTextContent()).items.map(x=>x.str).join(' ')+'\n';return t}
+function rowsFromText(txt,name){if(!esLicencia(txt))return[];const m=re=>(re.exec(txt)||[])[1];
+  const rucs=[...txt.matchAll(/\b(?:10|15|17|20)\d{9}\b/g)].map(x=>x[0]);
+  const desc=(txt.match(new RegExp('[^\\n]{0,70}('+KEYWORDS.join('|')+')[^\\n]{0,70}','i'))||[''])[0];
+  return[makeRow({factura:(m(/\b([FBE][A-Z0-9]{3}\s*-\s*\d{1,8})\b/)||'').replace(/\s/g,''),ruc:rucs[1]||rucs[0],
+    cliente:m(/(?:Se[ñn]or(?:\(es\)|es)?|Cliente|Raz[oó]n Social|Adquiriente)\s*:?\s*([A-ZÁÉÍÓÚÑ0-9][A-ZÁÉÍÓÚÑ0-9 .,&'-]{3,90}?)(?=\s{2,}|\s*R\.?U\.?C|\s*Direcci|\s*D\.?N\.?I|\n)/i),
+    emision:m(/Fecha\s*de\s*Emisi[oó]n\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{2}-\d{2})/i)||m(/(\d{2}\/\d{2}\/\d{4})/),
+    descripcion:desc.trim(),monto:(m(/(?:Importe|Monto)\s*Total[^\d]{0,15}([\d,]+\.\d{2})/i)||'0').replace(/,/g,''),
+    moneda:/US\$|D[OÓ]LAR|USD/i.test(txt)?'USD':'PEN',origen:name})]}
+
+/* ---------- Nombre de archivo (como en el Explorador) ---------- */
+function parseNombre(fn){const n=fn.replace(/\.[^.]+$/,'').replace(/\s+/g,' ').trim();
+  const doc=/^(BV|B\d{3}\b|BOLETA)/i.test(n)?'Boleta':'Factura';
+  const mm=/\b([EFB][A-Z0-9]{2,3})\s*-\s*(\d{1,8})\b/i.exec(n);const numero=mm?(mm[1]+'-'+mm[2]).toUpperCase():'';
+  let rest=(mm?n.slice(mm.index+mm[0].length):n).replace(/^[\s\-–]+/,''),cliente='',desc='';const p=rest.indexOf('(');
+  if(p>=0){cliente=rest.slice(0,p);desc=rest.slice(p+1).replace(/\)[^)]*$/,'')}
+  else{const parts=rest.split(/\s+[-–]\s+/);const i=parts.findIndex(x=>esLicencia(x));
+    if(parts.length>1&&i!==0){const k=i>0?i:1;cliente=parts.slice(0,k).join(' - ');desc=parts.slice(k).join(' - ')}
+    else{const j=norm(rest).search(/\d*\s*licencia/);cliente=j>0?rest.slice(0,j):'';desc=j>0?rest.slice(j):rest}}
+  cliente=cliente.replace(/[\s\-–]+$/,'').trim();desc=desc.replace(/^[\s\-–]+/,'').trim();
+  const cant=+((/(\d{1,3})\s*licencias?/i.exec(desc)||[])[1]||1);
+  const meses=+((/\b(\d{1,2})\s*mes(?:es)?\b/i.exec(desc)||[])[1]||12);
+  return{doc,numero,cliente,desc,cant,meses}}
+function datosTexto(t){const m=re=>(re.exec(t)||[])[1];const ids=[...t.matchAll(/\b(?:10|15|17|20)\d{9}\b/g)].map(x=>x[0]);
+  return{emision:m(/Fecha\s*de\s*Emisi[oó]n\s*:?\s*(\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{4}|\d{4}-\d{2}-\d{2})/i),
+    monto:(m(/(?:Importe|Monto)\s*Total[^\d]{0,20}([\d,]+\.\d{2})/i)||'').replace(/,/g,''),
+    moneda:/US\$|D[OÓ]LARES|\bUSD\b/i.test(t)?'USD':'PEN',ruc:ids[1]||ids[0]||m(/D\.?N\.?I\.?\s*:?\s*(\d{8})\b/i)}}
+const rutaDe=f=>(f._ruta||f.webkitRelativePath||f.name).replace(/^\/+/,'');
+const carpetaDe=f=>{const r=rutaDe(f);return r.includes('/')?r.split('/')[0]:'Archivos sueltos'};
+const subDe=f=>{const a=rutaDe(f).split('/');return a.length>2?a.slice(1,-1).join(' / '):''};
+async function filaDesdeNombre(f){const nm=parseNombre(f.name),ext=f.name.split('.').pop().toLowerCase();let dt={},warn='';
+  if(ext==='pdf'){try{const u8=new Uint8Array(await f.arrayBuffer());let t=await pdfText(u8);
+      if(t.replace(/\s/g,'').length<40&&!pdfjsKO){try{t=await pdfjsText(u8)}catch(e){pdfjsKO=true}}
+      if(t.replace(/\s/g,'').length>=40)dt=datosTexto(t)}catch(e){}}
+  const fechaArchivo=!parseFecha(dt.emision);if(fechaArchivo)warn='fecha tomada del archivo';
+  return{rows:[makeRow({factura:nm.numero||dt.numero,doc:nm.doc,cliente:nm.cliente,ruc:dt.ruc,descripcion:nm.desc,cant:nm.cant,meses:nm.meses,
+    emision:fechaArchivo?toISO(new Date(f.lastModified)):dt.emision,fechaArchivo,monto:dt.monto,moneda:dt.moneda,origen:subDe(f),carpeta:carpetaDe(f),ruta:rutaDe(f)})],info:warn}}
+
+/* ---------- Clasificador por archivo ---------- */
+async function parseBytes(name,u8){const ext=name.split('.').pop().toLowerCase();
+  if(ext==='xml'){const t=decodeXML(u8);if(!/Invoice|CreditNote|DebitNote/.test(t.slice(0,3000))||/ApplicationResponse/.test(t.slice(0,500)))return{rows:[]};
+    if(!esLicencia(t))return{rows:[]};return{rows:parseXML(t,name)}}
+  if(ext==='zip'){const rows=[];for(const f of await unzip(u8)){const bn=f.name.split('/').pop();
+      if(/\.(xml|pdf|json)$/i.test(bn)&&!/^R-/i.test(bn))rows.push(...(await parseBytes(bn,f.data)).rows)}return{rows}}
+  if(ext==='json')return{rows:parseJSON(new TextDecoder().decode(u8),name)};
+  if(ext==='pdf'){let t=await pdfText(u8);
+    if(t.replace(/\s/g,'').length<40&&!pdfjsKO){try{t=await pdfjsText(u8)}catch(e){pdfjsKO=true}}
+    if(t.replace(/\s/g,'').length<40)return{rows:[],warn:'PDF escaneado o sin texto legible (use el XML)'};
+    return{rows:rowsFromText(t,name)}}
+  return{rows:[]}}
+
+/* ---------- Procesamiento masivo ---------- */
+const VALID=/\.(xml|zip|pdf|json)$/i;
+const fkey=f=>rutaDe(f)+'|'+f.size+'|'+f.lastModified;
+let SEEN={};try{SEEN=JSON.parse(localStorage.getItem(LS+'_seen'))||{}}catch(e){}
+let busy=false;
+async function procesar(list,{forzar=false}={}){if(busy)return toast('Ya hay una importación en curso');
+  list=[...list];if(!list.length)return toast('La carpeta está vacía');
+  const total=list.length;
+  // Igual que el Explorador: el nombre del archivo debe contener la palabra clave. Los XML/ZIP de SUNAT se revisan por contenido.
+  let files=list.filter(f=>!/^R-/i.test(f.name)&&!/^~\$|\.(tmp|lnk|ini|db)$/i.test(f.name)&&(esLicencia(f.name)||/\.(xml|zip)$/i.test(f.name)));
+  if(!files.length){log(`✖ ${total} archivo(s) revisados: ninguno tiene "${KW.join(', ')}" en el nombre`);return toast('No se encontraron documentos de licencias')}
+  const base=f=>f.name.replace(/\.[^.]+$/,'').toUpperCase();
+  const conXml=new Set(files.filter(f=>/\.(xml|zip)$/i.test(f.name)).map(base));
+  files=files.filter(f=>!(/\.pdf$/i.test(f.name)&&conXml.has(base(f)))); // si hay XML, el PDF gemelo sobra
+  const pend=forzar?files:files.filter(f=>!SEEN[fkey(f)]),omit=files.length-pend.length;
+  if(!pend.length){log(`ℹ ${omit} archivo(s) ya importados antes, sin cambios. Use "Reprocesar carpeta" para forzar.`);return toast('Sin archivos nuevos')}
+  busy=true;const t0=performance.now();let done=0,conLic=0,err=0,warn=0;const all=[];
+  $('prog').style.display='block';
+  const tick=()=>{$('progBar').style.width=(done/pend.length*100)+'%';$('progTx').textContent=`${done} / ${pend.length} archivos · ${all.length} licencias detectadas`};
+  tick();let i=0;
+  async function worker(){while(i<pend.length){const f=pend[i++];
+    try{const r=esLicencia(f.name)&&!/\.(xml|zip|json)$/i.test(f.name)?await filaDesdeNombre(f):await parseBytes(f.name,new Uint8Array(await f.arrayBuffer()));
+      const rows=r.rows.filter(Boolean);rows.forEach(x=>{x.carpeta=x.carpeta||carpetaDe(f);x.origen=x.origen&&x.origen!==f.name?x.origen:subDe(f)});
+      if(rows.length){all.push(...rows);conLic++}if(r.warn){warn++;log(`⚠ ${f.name}: ${r.warn}`)}SEEN[fkey(f)]=1}
+    catch(e){err++;log(`✖ ${f.name}: ${e.message}`)}
+    done++;if(done%10===0||done===pend.length)tick()}}
+  try{await Promise.all(Array.from({length:Math.min(8,pend.length)},worker))}finally{busy=false}
+  try{localStorage.setItem(LS+'_seen',JSON.stringify(SEEN))}catch(e){}
+  const nuevos=upsert(all);tick();const seg=((performance.now()-t0)/1000).toFixed(1);
+  log(`✔ ${total} archivos revisados · ${pend.length} documentos leídos en ${seg}s · ${conLic} con licencias · ${nuevos} registros nuevos`+(omit?` · ${omit} ya importados (omitidos)`:'')+(warn?` · ${warn} avisos`:'')+(err?` · ${err} errores`:''));
+  toast(`${nuevos} licencias nuevas · ${seg}s`);setTimeout(()=>$('prog').style.display='none',2500);render()}
+async function entriesToFiles(items){const out=[];
+  const read=e=>new Promise(res=>{if(e.isFile)e.file(f=>{f._ruta=e.fullPath;out.push(f);res()},()=>res());else{const r=e.createReader(),all=[];
+    const next=()=>r.readEntries(async es=>{if(!es.length){for(const x of all)await read(x);res()}else{all.push(...es);next()}},()=>res());next()}});
+  for(const e of items)if(e)await read(e);return out}
+
+/* ---------- Exclusión por palabras ---------- */
+const EXCL_BASE=['Windows','Office','365','Microsoft','Antivirus','ESET','Kaspersky','Bitdefender','Adobe','AutoCAD','Suscripción','Software'];
+let EXCL={words:[...EXCL_BASE],off:[]};try{const e=JSON.parse(localStorage.getItem(LS+'_excl'));if(e&&e.words)EXCL=e}catch(e){}
+const saveExcl=()=>{try{localStorage.setItem(LS+'_excl',JSON.stringify(EXCL))}catch(e){}};
+const excluida=r=>{const t=norm(r.descripcion+' '+r.tipo);return EXCL.off.some(w=>new RegExp('(^|[^a-z0-9])'+norm(w).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'($|[^a-z0-9])').test(t))};
+const visibles=()=>DB.rows.filter(r=>!excluida(r));
+function renderExcl(){const cnt=DB.rows.filter(excluida).length;
+  $('excl').innerHTML='<b>Ocultar del listado:</b>'+EXCL.words.map(w=>`<button class="chip ${EXCL.off.includes(w)?'off':''}" data-w="${esc(w)}" title="Clic para ${EXCL.off.includes(w)?'mostrar':'ocultar'}">${esc(w)}${EXCL_BASE.includes(w)?'':'<span class="x" data-del="'+esc(w)+'">✕</span>'}</button>`).join('')+
+  `<input id="exclNew" placeholder="+ otra palabra (Enter)">`+(EXCL.off.length?` <button class="chip" id="exclAll">Mostrar todo</button> <span class="mut">${cnt} oculto(s)</span>`:'')}
+
+/* ---------- Render ---------- */
+function filtrados(){const q=norm($('q').value),c=$('fCli').value,t=$('fTipo').value,e=$('fEst').value,d1=$('fD1').value,d2=$('fD2').value;
+  return visibles().map(r=>({...r,estado:estado(r),dias:dias(r.vence)})).filter(r=>
+    (!q||norm([r.factura,r.cliente,r.ruc,r.descripcion].join(' ')).includes(q))&&(!c||r.cliente===c)&&(!t||r.tipo===t)&&
+    (!e||(e==='mes'?mesActual(r):r.estado===e))&&(!d1||r.vence>=d1)&&(!d2||r.vence<=d2))
+  .sort((a,b)=>{let x=a[sortK],y=b[sortK];if(sortK==='prioridad'){x=prio(a);y=prio(b)}return(x>y?1:x<y?-1:0)*sortDir||(a.vence>b.vence?1:-1)})}
+// Por vencer (más próximas arriba) → vencidas (la más reciente primero) → renovadas → no procede
+const prio=r=>r.noProcede?4e6:r.renovada?3e6:r.dias<0?1e6-r.dias:r.dias;
+const mesActual=r=>{const d=parseISO(r.vence),h=hoy();return!r.renovada&&!r.noProcede&&d.getMonth()===h.getMonth()&&d.getFullYear()===h.getFullYear()};
+function renderSrc(){const c={};DB.rows.forEach(r=>{const k=r.carpeta||'Sin carpeta';c[k]=(c[k]||0)+1});
+  $('carpetas').innerHTML=Object.keys(c).sort().map(k=>`<span class="fold">📁 ${esc(k)} <span class="mut">(${c[k]})</span><button data-rmf="${esc(k)}" title="Quitar los registros de esta carpeta">✕</button></span>`).join('')||'<span class="mut">Ninguna todavía</span>';
+  if(document.activeElement!==$('kw'))$('kw').value=KW.join(', ')}
+function render(){renderSrc();
+  $('upd').textContent=DB.upd?new Date(DB.upd).toLocaleString('es-PE',{hour12:false}):'—';
+  renderExcl();const act=visibles().filter(r=>!r.noProcede).map(r=>({...r,estado:estado(r),d:dias(r.vence)}));
+  $('kT').textContent=act.length;$('kV').textContent=act.filter(r=>r.estado==='vencida').length;
+  $('kR').textContent=act.filter(r=>r.estado==='rojo').length;$('kM').textContent=act.filter(mesActual).length;
+  const p=act.filter(r=>!r.renovada&&r.d<=90);const pen=p.filter(r=>r.moneda==='PEN').reduce((s,r)=>s+r.monto,0),usd=p.filter(r=>r.moneda==='USD').reduce((s,r)=>s+r.monto,0);
+  $('kP').innerHTML=`${money(pen,'PEN')}<br>${money(usd,'USD')}`;
+  const cs=$('fCli'),sel=cs.value;cs.innerHTML='<option value="">Todos</option>'+[...new Set(DB.rows.map(r=>r.cliente))].sort().map(c=>`<option ${c===sel?'selected':''}>${esc(c)}</option>`).join('');
+  const rows=filtrados(),size=+$('pSize').value,pages=Math.max(1,Math.ceil(rows.length/size));page=Math.min(page,pages);
+  const slice=rows.slice((page-1)*size,page*size);
+  $('tb').innerHTML=slice.length?slice.map(r=>{const [c,l]=EST[r.estado];return`<tr class="${r.noProcede?'np':''}">
+    <td><span class="st ${c}">${l}</span></td><td><span class="doc">${r.doc||'Factura'}</span><b>${esc(r.factura)}</b><div class="mut">${esc([r.carpeta,r.origen].filter(Boolean).join(' / '))}</div></td>
+    <td>${esc(r.cliente)}<div class="mut">${r.ruc?(r.ruc.length===8?'DNI ':'RUC ')+esc(r.ruc):''}</div></td>
+    <td><span class="tag">${r.tipo}</span>${esc(r.descripcion)}${r.cant>1?` <span class="mut">(${r.cant} lic.)</span>`:''}${r.meses!==12?` <span class="mut">· ${r.meses} meses</span>`:''}</td><td>${fmt(r.emision)}${r.fechaArchivo?'<div class="mut" title="El PDF no tiene texto legible; se usó la fecha del archivo">según archivo</div>':''}</td><td><b>${fmt(r.vence)}</b></td>
+    <td class="num">${r.renovada||r.noProcede?'—':r.dias<0?`<span style="color:var(--rojo)">hace ${-r.dias}</span>`:r.dias}</td>
+    <td class="num">${r.monto?money(r.monto,r.moneda):'<span class="mut">—</span>'}</td>
+    <td><div class="acc">${r.noProcede?'':`<button class="ic" data-ren="${esc(r.id)}">${r.renovada?'↺ Reabrir':'✔ Renovada'}</button>`}<button class="ic np" data-np="${esc(r.id)}">${r.noProcede?'↺ Restaurar':'⊘ No procede'}</button></div></td></tr>`}).join('')
+    :'<tr><td colspan="9" style="text-align:center;padding:30px" class="mut">Sin resultados</td></tr>';
+  $('pInfo').textContent=`${rows.length} registro(s)`;$('pNum').textContent=`${page} / ${pages}`;
+  document.querySelectorAll('th[data-s]').forEach(th=>th.textContent=th.textContent.replace(/ [▲▼]$/,'')+(th.dataset.s===sortK?(sortDir>0?' ▲':' ▼'):''))}
+
+/* ---------- Export ---------- */
+function exportCSV(){const rows=filtrados();if(!rows.length)return toast('No hay datos para exportar');
+  const h=['Estado','Factura','Cliente','RUC','Tipo','Descripción','Emisión','Vencimiento','Días restantes','Moneda','Importe'];
+  const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const csv=[h,...rows.map(r=>[EST[r.estado][1],r.factura,r.cliente,r.ruc,r.tipo,r.descripcion,fmt(r.emision),fmt(r.vence),r.renovada||r.noProcede?'':r.dias,r.moneda,r.monto.toFixed(2)])].map(l=>l.map(q).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`licencias_coseinco_${toISO(new Date())}.csv`;a.click();URL.revokeObjectURL(a.href)}
+
+/* ---------- Mock ---------- */
+function mock(){const h=hoy(),off=(d)=>{const x=new Date(h);x.setDate(x.getDate()+d);x.setFullYear(x.getFullYear()-1);return toISO(x)};
+  const data=[['F001-00012345','INVERSIONES ANDINAS S.A.C.','20512345678','Microsoft 365 Business Standard - Suscripción anual x 25 usuarios',-20,4125.00,'USD'],
+  ['F001-00012388','CLÍNICA SAN CHARBEL S.A.','20601234567','Antivirus ESET Protect Entry - Licencia anual 50 equipos',5,6890.00,'PEN'],
+  ['F001-00012402','DISTRIBUIDORA DEL NORTE E.I.R.L.','20498765432','Licencia Windows 11 Pro OEM x 10',12,7200.00,'PEN'],
+  ['F001-00012410','COLEGIO SANTA ROSA','20187654321','Microsoft 365 A3 - Suscripción anual educativa',28,2340.00,'USD'],
+  ['F001-00012433','TRANSPORTES RÁPIDOS S.A.C.','20556677889','Kaspersky Endpoint Security for Business - Anual 30 nodos',40,3150.00,'PEN'],
+  ['F001-00012457','CONSTRUCTORA LIMA SUR S.A.','20445566778','Licencia AutoCAD LT - Suscripción anual x 3',70,1850.00,'USD'],
+  ['F001-00012470','INVERSIONES ANDINAS S.A.C.','20512345678','Microsoft 365 Business Premium - Suscripción anual x 5',120,1320.00,'USD'],
+  ['F001-00012491','ESTUDIO JURÍDICO PAREDES','20334455667','Adobe Acrobat Pro - Suscripción anual x 8',200,1536.00,'USD'],
+  ['F001-00012505','FARMACIAS VIDA S.A.C.','20223344556','Bitdefender GravityZone Business - Licencia anual 80 equipos',300,9480.00,'PEN'],
+  ['F001-00012511','CLÍNICA SAN CHARBEL S.A.','20601234567','Microsoft 365 Business Basic - Suscripción anual x 40',-3,2880.00,'USD'],
+  ['F001-00012530','DISTRIBUIDORA DEL NORTE E.I.R.L.','20498765432','Software ERP - Licencia anual de soporte y actualización',55,4500.00,'PEN'],
+  ['F001-00012544','COLEGIO SANTA ROSA','20187654321','Antivirus ESET Endpoint - Renovación anual 120 equipos',-60,11200.00,'PEN']];
+  const n=upsert(data.map(d=>makeRow({factura:d[0],cliente:d[1],ruc:d[2],descripcion:d[3],emision:off(d[4]),monto:d[5],moneda:d[6],origen:'',carpeta:'Datos de prueba'})));
+  toast(`${n} registros de prueba cargados`);render()}
+
+/* ---------- UI ---------- */
+function log(m){$('log').textContent=m+'\n'+$('log').textContent}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',3000)}
+$('bFiles').onclick=()=>$('fFiles').click();$('fFiles').onchange=e=>{const fs=[...e.target.files];e.target.value='';procesar(fs,{forzar:true})};
+$('fDir').onchange=e=>{const fs=[...e.target.files];e.target.value='';procesar(fs,{forzar:forzarSig});forzarSig=false};
+$('bDir').onclick=()=>$('fDir').click();
+let forzarSig=false;$('bRe').onclick=()=>{forzarSig=true;$('fDir').click()};
+$('bCsv').onclick=exportCSV;
+$('carpetas').onclick=e=>{const k=e.target.dataset.rmf;if(k==null||!confirm(`¿Quitar los registros de la carpeta "${k}"?`))return;
+  DB.rows=DB.rows.filter(r=>(r.carpeta||'Sin carpeta')!==k);Object.keys(SEEN).forEach(x=>{if(x.startsWith(k+'/'))delete SEEN[x]});
+  try{localStorage.setItem(LS+'_seen',JSON.stringify(SEEN))}catch(er){}save();render()};
+$('kw').onchange=()=>{const v=$('kw').value.split(',').map(x=>norm(x.trim())).filter(Boolean);KW=v.length?v:['licencia'];
+  try{localStorage.setItem('lt_coseinco_v2_kw',JSON.stringify(KW))}catch(er){}toast('Palabra clave guardada. Use "Reprocesar carpeta" para aplicarla.');render()};$('bMock').onclick=mock;
+$('bClear').onclick=()=>{if(confirm('¿Eliminar todos los registros guardados en este navegador?')){DB={rows:[],upd:null};SEEN={};localStorage.removeItem(LS+'_seen');save();render()}};
+['q','fCli','fTipo','fEst','fD1','fD2'].forEach(id=>$(id).addEventListener('input',()=>{page=1;render()}));
+$('pSize').onchange=()=>{page=1;render()};$('pPrev').onclick=()=>{page=Math.max(1,page-1);render()};$('pNext').onclick=()=>{page++;render()};
+document.querySelectorAll('th[data-s]').forEach(th=>th.onclick=()=>{const k=th.dataset.s;sortDir=k===sortK?-sortDir:1;sortK=k;render()});
+document.querySelectorAll('.kpi').forEach(k=>k.onclick=()=>{const v=k.dataset.k;if(v==='mes'){$('fEst').innerHTML.includes('value="mes"')||$('fEst').insertAdjacentHTML('beforeend','<option value="mes">Vencen este mes</option>')}$('fEst').value=v;page=1;render()});
+$('tb').onclick=e=>{const b=e.target.closest('button');if(!b)return;const r=DB.rows.find(x=>x.id===(b.dataset.ren??b.dataset.np));if(!r)return;
+  if(b.dataset.ren!=null)r.renovada=!r.renovada;else{r.noProcede=!r.noProcede;if(r.noProcede)r.renovada=false}save();render()};
+$('excl').onclick=e=>{const d=e.target.dataset.del;if(d){EXCL.words=EXCL.words.filter(w=>w!==d);EXCL.off=EXCL.off.filter(w=>w!==d);saveExcl();page=1;return render()}
+  if(e.target.id==='exclAll'){EXCL.off=[];saveExcl();page=1;return render()}
+  const c=e.target.closest('.chip[data-w]');if(!c)return;const w=c.dataset.w;EXCL.off=EXCL.off.includes(w)?EXCL.off.filter(x=>x!==w):[...EXCL.off,w];saveExcl();page=1;render()};
+$('excl').addEventListener('keydown',e=>{if(e.target.id!=='exclNew'||e.key!=='Enter')return;const w=e.target.value.trim();if(!w)return;
+  if(!EXCL.words.some(x=>norm(x)===norm(w)))EXCL.words.push(w);if(!EXCL.off.includes(w))EXCL.off.push(w);saveExcl();page=1;render();$('exclNew').focus()});
+const dz=$('drop');dz.ondragover=e=>{e.preventDefault();dz.classList.add('on')};dz.ondragleave=()=>dz.classList.remove('on');
+dz.ondrop=async e=>{e.preventDefault();dz.classList.remove('on');const it=[...e.dataTransfer.items].map(x=>x.webkitGetAsEntry&&x.webkitGetAsEntry());
+  procesar(it.some(Boolean)?await entriesToFiles(it):[...e.dataTransfer.files])};
+load();if(!DB.rows.length)mock();render();
+setInterval(render,60*60*1000);
+</script>
+</body>
+</html>
