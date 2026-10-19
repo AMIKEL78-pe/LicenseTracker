@@ -51,6 +51,8 @@ tr.np td{opacity:.55}
 .fold{display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border:1px solid #bfdbfe;color:var(--azul);border-radius:16px;padding:4px 10px;font-size:12px;font-weight:600;margin:2px}
 .fold button{box-shadow:none;background:none;padding:0 2px;color:var(--rojo);font-size:12px}
 .doc{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;background:#ffedd5;color:var(--nar2);margin-right:4px}
+.monto{cursor:pointer;border-bottom:1px dashed var(--mut);white-space:nowrap}.monto:hover{color:var(--nar2);border-color:var(--nar)}
+.edm{display:flex;gap:4px;justify-content:flex-end}.edm select{width:auto;padding:4px}.edm input{width:100px;padding:4px 6px;text-align:right}
 .drop{border:2px dashed var(--bd);border-radius:12px;padding:14px;text-align:center;color:var(--mut)}
 .drop.on{border-color:var(--nar);background:#fff7ed}
 </style>
@@ -155,7 +157,7 @@ function makeRow(o){const em=parseFecha(o.emision);if(!em)return null;const mese
     emision:toISO(em),vence:toISO(addMeses(em,meses)),descripcion:(o.descripcion||'').trim(),tipo:tipo(o.descripcion),
     monto:+o.monto||0,moneda:/usd|dolar|\$/i.test(o.moneda||'')&&!/s\//i.test(o.moneda)?'USD':'PEN',origen:o.origen||'',renovada:false}}
 function upsert(rows){let n=0;const map=new Map(DB.rows.map(r=>[r.id,r]));
-  rows.forEach(r=>{if(!r)return;const prev=map.get(r.id);if(prev){r.renovada=prev.renovada;r.noProcede=prev.noProcede}else n++;map.set(r.id,r)});
+  rows.forEach(r=>{if(!r)return;const prev=map.get(r.id);if(prev){r.renovada=prev.renovada;r.noProcede=prev.noProcede;if(prev.montoManual){r.monto=prev.monto;r.moneda=prev.moneda;r.montoManual=true}}else n++;map.set(r.id,r)});
   DB.rows=[...map.values()];DB.upd=new Date().toISOString();save();return n}
 
 /* ---------- Parsers ---------- */
@@ -344,7 +346,7 @@ function render(){renderSrc();
     <td>${esc(r.cliente)}<div class="mut">${r.ruc?(r.ruc.length===8?'DNI ':'RUC ')+esc(r.ruc):''}</div></td>
     <td><span class="tag">${r.tipo}</span>${esc(r.descripcion)}${r.cant>1?` <span class="mut">(${r.cant} lic.)</span>`:''}${r.meses!==12?` <span class="mut">· ${r.meses} meses</span>`:''}</td><td>${fmt(r.emision)}${r.fechaArchivo?'<div class="mut" title="El PDF no tiene texto legible; se usó la fecha del archivo">según archivo</div>':''}</td><td><b>${fmt(r.vence)}</b></td>
     <td class="num">${r.renovada||r.noProcede?'—':r.dias<0?`<span style="color:var(--rojo)">hace ${-r.dias}</span>`:r.dias}</td>
-    <td class="num">${r.monto?money(r.monto,r.moneda):'<span class="mut">—</span>'}</td>
+    <td class="num"><span class="monto" data-edm="${esc(r.id)}" title="Clic para editar el importe">${r.monto?money(r.monto,r.moneda):'<span class="mut">Agregar</span>'} ✎</span>${r.montoManual?'<div class="mut">editado</div>':''}</td>
     <td><div class="acc">${r.noProcede?'':`<button class="ic" data-ren="${esc(r.id)}">${r.renovada?'↺ Reabrir':'✔ Renovada'}</button>`}<button class="ic np" data-np="${esc(r.id)}">${r.noProcede?'↺ Restaurar':'⊘ No procede'}</button></div></td></tr>`}).join('')
     :'<tr><td colspan="9" style="text-align:center;padding:30px" class="mut">Sin resultados</td></tr>';
   $('pInfo').textContent=`${rows.length} registro(s)`;$('pNum').textContent=`${page} / ${pages}`;
@@ -393,6 +395,13 @@ $('bClear').onclick=()=>{if(confirm('¿Eliminar todos los registros guardados en
 $('pSize').onchange=()=>{page=1;render()};$('pPrev').onclick=()=>{page=Math.max(1,page-1);render()};$('pNext').onclick=()=>{page++;render()};
 document.querySelectorAll('th[data-s]').forEach(th=>th.onclick=()=>{const k=th.dataset.s;sortDir=k===sortK?-sortDir:1;sortK=k;render()});
 document.querySelectorAll('.kpi').forEach(k=>k.onclick=()=>{const v=k.dataset.k;if(v==='mes'){$('fEst').innerHTML.includes('value="mes"')||$('fEst').insertAdjacentHTML('beforeend','<option value="mes">Vencen este mes</option>')}$('fEst').value=v;page=1;render()});
+$('tb').addEventListener('click',e=>{const sp=e.target.closest('[data-edm]');if(!sp)return;const r=DB.rows.find(x=>x.id===sp.dataset.edm);if(!r)return;
+  const td=sp.parentElement;td.innerHTML=`<div class="edm"><select><option ${r.moneda==='PEN'?'selected':''} value="PEN">S/</option><option ${r.moneda==='USD'?'selected':''} value="USD">US$</option></select><input type="number" step="0.01" min="0" value="${r.monto||''}"></div>`;
+  const inp=td.querySelector('input'),sel=td.querySelector('select');inp.focus();inp.select();let fin=false;
+  const ok=()=>{if(fin)return;fin=true;const v=parseFloat(inp.value);if(!isNaN(v)&&v>=0){r.monto=Math.round(v*100)/100;r.moneda=sel.value;r.montoManual=true;save();toast('Importe actualizado')}render()};
+  const cancel=()=>{fin=true;render()};
+  inp.onkeydown=ev=>{if(ev.key==='Enter')ok();if(ev.key==='Escape')cancel()};sel.onkeydown=inp.onkeydown;
+  td.addEventListener('focusout',()=>setTimeout(()=>{if(!td.contains(document.activeElement))ok()},0))});
 $('tb').onclick=e=>{const b=e.target.closest('button');if(!b)return;const r=DB.rows.find(x=>x.id===(b.dataset.ren??b.dataset.np));if(!r)return;
   if(b.dataset.ren!=null)r.renovada=!r.renovada;else{r.noProcede=!r.noProcede;if(r.noProcede)r.renovada=false}save();render()};
 $('excl').onclick=e=>{const d=e.target.dataset.del;if(d){EXCL.words=EXCL.words.filter(w=>w!==d);EXCL.off=EXCL.off.filter(w=>w!==d);saveExcl();page=1;return render()}
